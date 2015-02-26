@@ -16,6 +16,7 @@ var runTests = function(){
 			log(typeof defaultParse,':',defaultParse);
 			log('--------------------------------- user');
 			log(typeof userParse, ':',userParse);
+			log('*********************************');
 
 			return;
 		}

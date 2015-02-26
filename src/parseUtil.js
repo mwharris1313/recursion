@@ -9,8 +9,15 @@ var log = console.log.bind(console);
 // eg.	'[' ']'	in ' [ 134, 34344 ] '	or '<!--' '-->'	in ' <!-- abc def ghi --> '
 pu.isEnclosed = function(str, begin, end){
 	var s = str.trim();
-	return s.indexOf(begin) === 0 && s.indexOf(end) === (s.length - end.length) ? true : false;
+	var beginPosition = s.indexOf(begin);
+	var endPosition = begin !== end ? s.indexOf(end) : s.indexOf(end, beginPosition+1);
+	var dl = s.length - end.length;
+	return beginPosition === 0 && endPosition === dl ? true : false;
 }
+//log( pu.isEnclosed('{}','{','}' ) );		// true
+//log( pu.isEnclosed('{dfsf}','{','}' ) );	// true
+//log( pu.isEnclosed('"dfsf"','"','"' ) );	// true
+
 
 // ******************************************************************
 // return the string enclosed by the begin/end pattern
