@@ -1,3 +1,4 @@
+var _;
 var log = console.log.bind(console);
 var out='';
 
@@ -6,11 +7,16 @@ var runTests = function(){
 	for(var i=0; i<s.length; i++){
 		defaultParse = JSON.parse(s[i]);
 		userParse = parseJSON(s[i]);
-		if (userParse !== defaultParse) {
+		if (!_.isEqual(userParse ,defaultParse)) {
 			log('*********************************');
 			log('FAILED ON:');
 			log('*********************************');
 			log(s[i]);
+			log('--------------------------------- default');
+			log(typeof defaultParse,':',defaultParse);
+			log('--------------------------------- user');
+			log(typeof userParse, ':',userParse);
+
 			return;
 		}
 	}
