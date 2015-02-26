@@ -7,6 +7,8 @@ var pu; // lib/parseUtil.js
 
 var parseJSON = function(json) {
 	// your code goes here
+
+	// Arrays
 	if ( pu.isEnclosed(json,'[',']') ){
 		var s = pu.getEnclosed(json,'[',']');
 		var arr = s.split(',');
@@ -15,12 +17,21 @@ var parseJSON = function(json) {
 		if (s === '') return [];
 
 		for (var i=0; i<arr.length; i++) {
-			arr[i] = pu.getEnclosed(arr[i], '"','"');
+			if (pu.isEnclosed(arr[i],'"','"')) { // isString
+				arr[i] = pu.getEnclosed(arr[i], '"','"'); 
+			} else if (arr[i] === 'true') {
+				arr[i] = true;
+			} else if (arr[i] === 'false') {
+				arr[i] = false;
+			} else if (arr[i] === 'null') {
+				arr[i] = null;
+			}
 		}
 		return arr;
  
 	}
 
+	// Objects
 	if ( pu.isEnclosed(json,'{','}') ){
 		var s = pu.getEnclosed(json,'{','}');
 
