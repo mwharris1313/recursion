@@ -23,22 +23,18 @@ var parseJSON = function(json) {
 
 	if ( pu.isEnclosed(json,'{','}') ){
 		var s = pu.getEnclosed(json,'{','}');
-		var arr = s.split(':');
-		var obj = {};
 
 		if (s === '') return {};
-		if (arr.length === 2) { // key and value
-			if ( pu.isEnclosed(arr[0], '"','"') ){
-				if ( pu.isEnclosed(arr[1], '"','"') ){
-					obj[ pu.getEnclosed(arr[0],'"','"') ] = pu.getEnclosed(arr[1],'"','"');
-					return obj;
-				} else {
+		if (s.indexOf(',') === -1) { // single kv pair
+			return pu.getKVPairFromString(s);
 
-				}
+		} else { // multiple keys and values 
+			var obj = {};
+			var kvPairs = s.split(',');
+			for(var i=0; i<kvPairs.length; i++) {
+				pu.extend(obj, pu.getKVPairFromString(kvPairs[i]));
 			}
-
-		} else if (arr.length > 2) { // multiple keys and values 
-			log('yep');
+			return obj;
 		}
 	}
 

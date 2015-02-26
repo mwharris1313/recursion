@@ -98,5 +98,28 @@ pu.getNonEscaped = function(s, pattern , n){
 //log( "nonescaped:", pu.getNonEscaped(s, '"', 2) );
 //log('{"key" : "value\\\"\\","key2":"val2"}');
 
+// ******************************************************************
+pu.extend = function(obj) {
+	for (var i=1; i < arguments.length; i++){
+		for (var key in arguments[i]) {
+			obj[key] = arguments[i][key];
+		}
+	}
+	return obj;
+};
+
+pu.getKVPairFromString = function(str){
+	var s = str.trim();
+	var obj = {};
+	var arr = s.split(':');
+	if ( pu.isEnclosed(arr[0], '"','"') ){
+		if ( pu.isEnclosed(arr[1], '"','"') ){
+			obj[ pu.getEnclosed(arr[0],'"','"') ] = pu.getEnclosed(arr[1],'"','"');
+			return obj;
+		} else {
+
+		}
+	}
+}
 //=============================================================================
 }());
