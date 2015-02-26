@@ -7,14 +7,26 @@ var pu; // lib/parseUtil.js
 
 var parseJSON = function(json) {
 	// your code goes here
-	if (json === '[]') return [];
+	if ( pu.isEnclosed(json,'[',']') ){
+		var s = pu.getEnclosed(json,'[',']');
+		var arr = s.split(',');
+		var obj = {};
+
+		if (s === '') return [];
+
+		for (var i=0; i<arr.length; i++) {
+			arr[i] = pu.getEnclosed(arr[i], '"','"');
+		}
+		return arr;
+ 
+	}
 
 	if ( pu.isEnclosed(json,'{','}') ){
-
 		var s = pu.getEnclosed(json,'{','}');
 		var arr = s.split(':');
 		var obj = {};
-		if (arr.length === 1) return {};
+
+		if (s === '') return {};
 		if (arr.length === 2) { // key and value
 			if ( pu.isEnclosed(arr[0], '"','"') ){
 				if ( pu.isEnclosed(arr[1], '"','"') ){
