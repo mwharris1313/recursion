@@ -36,10 +36,8 @@ var parseJSON = function(json) {
 		var s = pu.getEnclosed(json,'{','}');
 
 		if (s === '') return {};
-		if (s.indexOf(',') === -1) { // single kv pair
-			return pu.getKVPairFromString(s);
-
-		} else { // multiple keys and values 
+		if (s.indexOf(',') === -1) { return pu.getKVPairFromString(s); } // single kv pair
+		else { // multiple kv pairs
 			var obj = {};
 			var kvPairs = s.split(',');
 			for(var i=0; i<kvPairs.length; i++) {

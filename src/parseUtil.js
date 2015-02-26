@@ -1,13 +1,19 @@
 (function() {
-//=============================================================================
 'use strict';
+//=============================================================================
+var thisFile = 'parseUtil.js';
 window.pu = {};
+var isDebug = true;
+var isLogging = false;
 
 var log = console.log.bind(console);
 // ******************************************************************
 // is string enclosed by a string pattern , a 'begin' and 'end' pattern
 // eg.	'[' ']'	in ' [ 134, 34344 ] '	or '<!--' '-->'	in ' <!-- abc def ghi --> '
 pu.isEnclosed = function(str, begin, end){
+	var thisFunc = 'isEnclosed()';
+	if (isLogging) log(thisFile, thisFunc);
+
 	var s = str.trim();
 	var beginPosition = s.indexOf(begin);
 	var endPosition = begin !== end ? s.indexOf(end) : s.indexOf(end, beginPosition+1);
@@ -22,6 +28,9 @@ pu.isEnclosed = function(str, begin, end){
 // ******************************************************************
 // return the string enclosed by the begin/end pattern
 pu.getEnclosed = function(str, begin, end){
+	var thisFunc = 'getEnclosed()';
+	if (isLogging) log(thisFile, thisFunc);
+
 	var s = str.trim();
 	if ( !pu.isEnclosed(str, begin,end) ) return undefined;
 	return s.slice(begin.length, s.length - end.length );
@@ -31,6 +40,9 @@ log(  );
 // ******************************************************************
 // split a string at the first occurence of 'sep' pattern, return 2 element array.
 pu.leftAndRightOf = function(str, sep, isTrim){
+	var thisFunc = 'leftAndRightOf()';
+	if (isLogging) log(thisFile, thisFunc);
+
 	var s = isTrim ? str.trim() : str;
 	var i = s.indexOf(sep);
 	var left = s.slice(0, i );
@@ -43,6 +55,9 @@ pu.leftAndRightOf = function(str, sep, isTrim){
 // ' \ \\ Tbbbb  \\\\\" \\\\\\\ '
 // eg. how many consecutive \ left of ", how many b right of T ? 
 pu.countRepeated = function(s, pattern, start, isSearchLeft){
+	var thisFunc = 'countRepeated()';
+	if (isLogging) log(thisFile, thisFunc);
+
 	var len = pattern.length;
 	var count = 0;
 	log(s);
@@ -79,6 +94,8 @@ pu.countRepeated = function(s, pattern, start, isSearchLeft){
 // Work in progress
 var slash='\\';
 pu.getNonEscaped = function(s, pattern , n){
+	var thisFunc = 'getNonExcaped()';
+	if (isLogging) log(thisFile, thisFunc);
 
 	var count = 0;
 	var numSlashes = 0;
@@ -100,6 +117,9 @@ pu.getNonEscaped = function(s, pattern , n){
 
 // ******************************************************************
 pu.extend = function(obj) {
+	var thisFunc = 'extend()';
+	if (isLogging) log(thisFile, thisFunc);
+
 	for (var i=1; i < arguments.length; i++){
 		for (var key in arguments[i]) {
 			obj[key] = arguments[i][key];
@@ -109,17 +129,36 @@ pu.extend = function(obj) {
 };
 
 pu.getKVPairFromString = function(str){
+	var thisFunc = 'getKVPairFromString()';
+	if (isLogging) log(thisFile, thisFunc);
+
 	var s = str.trim();
 	var obj = {};
 	var arr = s.split(':');
-	if ( pu.isEnclosed(arr[0], '"','"') ){
-		if ( pu.isEnclosed(arr[1], '"','"') ){
-			obj[ pu.getEnclosed(arr[0],'"','"') ] = pu.getEnclosed(arr[1],'"','"');
-			return obj;
-		} else {
 
+	var key = pu.isEnclosed(arr[0], '"','"') ? pu.getEnclosed(arr[0],'"','"').trim() : arr[0].trim();
+	var val = pu.isEnclosed(arr[1], '"','"') ? pu.getEnclosed(arr[1],'"','"').trim() : arr[1].trim();
+
+	if ( pu.isEnclosed(arr[0], '"','"') ){ // is key doubleqouted
+		if (val === '') { 
+			obj[key] = '';
+		} else if (val === 'true') {
+			obj[key] = true;
+		} else if (val === 'false')	{
+			obj[key] = false;
+		} else if (val === 'null') {
+			obj[key] = null;
+		} else if (typeof val === 'string')	{ obj[key] = val;
+		} else {
+			if (isDebug) log('ERROR:',thisFile, thisFunc, 'unknown type for object value');
+			obj = undefined;
 		}
+		return obj;
+	} else { // non doubleqouted key
+		if (isDebug) log('ERROR:',thisFile, thisFunc, 'no double qoutes on object key');
+		return undefined;
 	}
+
 }
 //=============================================================================
 }());
