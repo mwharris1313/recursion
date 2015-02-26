@@ -11,7 +11,7 @@ var runTests = function(){
 			log('*********************************');
 			log('FAILED ON:');
 			log('*********************************');
-			log(s[i]);
+			log(i,s[i]);
 			log('--------------------------------- default');
 			log(typeof defaultParse,':',defaultParse);
 			log('--------------------------------- user');

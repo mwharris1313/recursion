@@ -26,6 +26,7 @@ pu.getEnclosed = function(str, begin, end){
 	if ( !pu.isEnclosed(str, begin,end) ) return undefined;
 	return s.slice(begin.length, s.length - end.length );
 }
+log(  );
 
 // ******************************************************************
 // split a string at the first occurence of 'sep' pattern, return 2 element array.
