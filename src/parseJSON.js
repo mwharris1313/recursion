@@ -59,6 +59,7 @@ var parseJSON = function(json) {
 				key = '';
 			} else if (s[p]!=='"' && isObj && keyStart && !keyEnd) { // object key progressing
 				key += s[p];
+				if (isDebug) log('KEY PROGRESSING:', val);
 
 			} else if (s[p]==='"' && isObj && !keyEnd) { // object key end
 				keyEnd = true;
@@ -83,19 +84,16 @@ var parseJSON = function(json) {
 				if (isObj) o[key] = val;
 
 			} else if (s[p]===',' && (isArr||isObj) && valEnd){
-
-				if (isArr) {
-					valStart = true;
-					valEnd = false;
-					val = undefined;
-					valType = undefined;
-				}
-
 				if (isObj) {
-					keyStart = true;
+					keyStart = false;
 					keyEnd = false;
 					key = undefined;				
 				}
+
+				valStart = true;
+				valEnd = false;
+				val = undefined;
+				valType = undefined;
 
 			// ------------------------------------------------------------------ NON HANDLED CHARACTERS
 			// whitespace and other non "trigger" characters...
