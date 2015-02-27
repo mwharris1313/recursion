@@ -3,7 +3,7 @@
 //=============================================================================
 var thisFile = 'parseUtil.js';
 window.pu = {};
-var isDebug = true;
+var isDebug = false;
 var isLogging = false;
 
 var log = console.log.bind(console);
@@ -35,7 +35,17 @@ pu.getEnclosed = function(str, begin, end){
 	if ( !pu.isEnclosed(str, begin,end) ) return undefined;
 	return s.slice(begin.length, s.length - end.length );
 }
-log(  );
+
+// ******************************************************************
+// return the string enclosed by the begin/end pattern
+pu.getKVPair = function(str, begin, end, ignore){
+	var thisFunc = 'getEnclosed()';
+	if (isLogging) log(thisFile, thisFunc);
+
+	var s = str.trim();
+	if ( !pu.isEnclosed(str, begin,end) ) return undefined;
+	return s.slice(begin.length, s.length - end.length );
+}
 
 // ******************************************************************
 // split a string at the first occurence of 'sep' pattern, return 2 element array.
@@ -128,6 +138,43 @@ pu.extend = function(obj) {
 	return obj;
 };
 
+// ******************************************************************
+pu.reduce = function(collection, iterator, accumulator) {
+	var thisFunc = 'reduce()';
+	if (isLogging) log(thisFile, thisFunc);
+
+	if (collection.length) {
+		var acc = accumulator !== undefined ? iterator(accumulator, collection[0]) : collection[0];
+		for (var i = 1; i<collection.length; i++){
+			acc = iterator(acc, collection[i], i, collection);
+		}
+	} else if (typeof collection === "object") {
+		var keys = Object.keys(collection);
+		var acc = accumulator !== undefined ? iterator(accumulator, collection[keys[0]]) : collection[keys[0]];
+		for (var i = 1; i<keys.length; i++){
+			acc = iterator(acc, collection[keys[i]], keys[i], collection);
+		}
+	}
+	return acc;
+};
+
+// ******************************************************************
+// Determine if the array or object contains a given value (using `===`).
+pu.contains = function(collection, target) {
+	var thisFunc = 'contains()';
+	if (isLogging) log(thisFile, thisFunc);
+
+	// TIP: Many iteration problems can be most easily expressed in
+	// terms of reduce(). Here's a freebie to demonstrate!
+	return _.reduce(collection, function(wasFound, item) {
+		if (wasFound) {
+			return true;
+		}
+		return item === target;
+	}, false);
+};
+
+// ******************************************************************
 pu.getKVPairFromString = function(str){
 	var thisFunc = 'getKVPairFromString()';
 	if (isLogging) log(thisFile, thisFunc);
@@ -160,5 +207,7 @@ pu.getKVPairFromString = function(str){
 	}
 
 }
+
+
 //=============================================================================
 }());
