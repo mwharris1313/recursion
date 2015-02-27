@@ -3,11 +3,8 @@ var pu; // lib/parseUtil.js
 // var parseJSON = JSON.parse;
 // but you're not, so you'll write it from scratch:
 
-
-
 var parseJSON = function(json) {
 	// your code goes here
-
 	// Arrays
 	if ( pu.isEnclosed(json,'[',']') ){
 		var s = pu.getEnclosed(json,'[',']');
@@ -25,6 +22,8 @@ var parseJSON = function(json) {
 				arr[i] = false;
 			} else if (arr[i] === 'null') {
 				arr[i] = null;
+			} else if (!isNaN(arr[i])) {
+				arr[i] = +arr[i];
 			}
 		}
 		return arr;
@@ -46,5 +45,4 @@ var parseJSON = function(json) {
 			return obj;
 		}
 	}
-
 };
