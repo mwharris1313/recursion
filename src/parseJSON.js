@@ -2,7 +2,7 @@ var pu; // lib/parseUtil.js
 // this is what you would do if you were one to do things the easy way:
 // var parseJSON = JSON.parse;
 // but you're not, so you'll write it from scratch:
-var isDebug = false;
+var isDebug = true;
 
 var parseJSON = function(json) {
 
@@ -18,6 +18,9 @@ var parseJSON = function(json) {
 		var itemEnded = false;
 		var itemType = undefined;
 
+		var isArr = false;
+		var isObj = false;
+
 		var keyStart = false;
 		var keyEnd = false;
 		var key = undefined;
@@ -26,9 +29,6 @@ var parseJSON = function(json) {
 		var valEnd = false;
 		var val = undefined;
 		var valType = undefined;
-
-		var isArr = false;
-		var isObj = false;
 
 		for (; p<s.length ;p++) { // run through the json string left to right checking for 'trigger' characters
 
@@ -52,7 +52,6 @@ var parseJSON = function(json) {
 
 			// ------------------------------------------------------------------ OBJECT HANDLING
 			} else if (s[p]==='}' && isObj) { // object end
-				if (valEnd) o[key] = val;
 				return o;
 
 			} else if (s[p]==='"' && isObj && !keyStart) { // object key start
@@ -81,8 +80,23 @@ var parseJSON = function(json) {
 				valEnd = true;
 				if (isDebug) log('VAL:', val);
 				if (isArr) o.push(val);
+				if (isObj) o[key] = val;
 
-			// if valEnd && s[p]===',' reset all key/val items
+			} else if (s[p]===',' && (isArr||isObj) && valEnd){
+
+				if (isArr) {
+					valStart = true;
+					valEnd = false;
+					val = undefined;
+					valType = undefined;
+				}
+
+				if (isObj) {
+					keyStart = true;
+					keyEnd = false;
+					key = undefined;				
+				}
+
 			// ------------------------------------------------------------------ NON HANDLED CHARACTERS
 			// whitespace and other non "trigger" characters...
 
