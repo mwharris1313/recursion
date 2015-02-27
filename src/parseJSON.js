@@ -5,44 +5,6 @@ var pu; // lib/parseUtil.js
 
 var parseJSON = function(json) {
 	// your code goes here
-	// Arrays
-	if ( pu.isEnclosed(json,'[',']') ){
-		var s = pu.getEnclosed(json,'[',']');
-		var arr = s.split(',');
-		var obj = {};
 
-		if (s === '') return [];
 
-		for (var i=0; i<arr.length; i++) {
-			if (pu.isEnclosed(arr[i],'"','"')) { // isString
-				arr[i] = pu.getEnclosed(arr[i], '"','"'); 
-			} else if (arr[i] === 'true') {
-				arr[i] = true;
-			} else if (arr[i] === 'false') {
-				arr[i] = false;
-			} else if (arr[i] === 'null') {
-				arr[i] = null;
-			} else if (!isNaN(arr[i])) {
-				arr[i] = +arr[i];
-			}
-		}
-		return arr;
- 
-	}
-
-	// Objects
-	if ( pu.isEnclosed(json,'{','}') ){
-		var s = pu.getEnclosed(json,'{','}');
-
-		if (s === '') return {};
-		if (s.indexOf(',') === -1) { return pu.getKVPairFromString(s); } // single kv pair
-		else { // multiple kv pairs
-			var obj = {};
-			var kvPairs = s.split(',');
-			for(var i=0; i<kvPairs.length; i++) {
-				pu.extend(obj, pu.getKVPairFromString(kvPairs[i]));
-			}
-			return obj;
-		}
-	}
 };
