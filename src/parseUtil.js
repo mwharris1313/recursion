@@ -7,6 +7,10 @@ var isDebug = false;
 var isLogging = false;
 var log = console.log.bind(console);
 // ******************************************************************
+pu.template = function(arg1) {
+	var thisFunc = 'template()';
+	if (isLogging) log(thisFile, thisFunc);
+}
 
 // ******************************************************************
 pu.reduce = function(collection, iterator, accumulator) {
