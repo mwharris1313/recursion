@@ -85,6 +85,12 @@ var parseJSON = function(json) {
 				valStart = true;
 				isArr = true;
 
+			// ------------------------------------------------------------------ ARRAY HANDLE RECURSION
+			} else if (s[p]==='[' && (isArr||isObj)){ // object start
+				valEnd = true;
+				if (isArr) o.push(parseJSON(s, p));
+				if (isObj) o[key] = parseJSON(s, p);
+
 			// ------------------------------------------------------------------ OBJECT INIT
 			} else if (s[p]==='{' && !isArr && !isObj){ // object start
 				o = {};
@@ -95,6 +101,7 @@ var parseJSON = function(json) {
 				valEnd = true;
 				if (isArr) o.push(parseJSON(s, p));
 				if (isObj) o[key] = parseJSON(s, p);
+
 			// ------------------------------------------------------------------ ARRAY HANDLING
 			} else if (s[p]===']' && isArr && valType!=='detecting') { // array end
 				return o;
