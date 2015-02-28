@@ -20,6 +20,7 @@ var parseJSON = function(json) {
 
 		var isArr = false;
 		var isObj = false;
+		var isNumeric = false;
 
 		var keyStart = false;
 		var keyEnd = false;
@@ -29,6 +30,7 @@ var parseJSON = function(json) {
 		var valEnd = false;
 		var val = undefined;
 		var valType = undefined;
+		var isNumeric = false;
 
 		var commaReset = function(){
 			// ------------------ comma reset for key/value
@@ -43,6 +45,7 @@ var parseJSON = function(json) {
 			valEnd = false;
 			val = undefined;
 			valType = undefined;
+			isNumeric = false;
 		}
 
 		var logVars = function(){
@@ -129,7 +132,9 @@ var parseJSON = function(json) {
 				if (isArr) o.push(val);
 				if (isObj) o[key] = val;
 
-			// ------------------ handle valType unknown
+			// ------------------ handle/detect unknown val type
+
+			// -------- isAlpha chars
 			} else if (pu.isAlpha(s[p]) && (isArr||isObj) && valStart && valType === undefined) { // val type unknown detect start
 				valType = 'detecting';
 				val = s[p];
@@ -139,12 +144,28 @@ var parseJSON = function(json) {
 				val += s[p];
 				if (isDebug) log('VAL DETECT PROGRESSING:', val);
 
+
+			// -------- isNumeric chars
+			} else if (pu.isNumeric(s[p]) && (isArr||isObj) && valStart && valType === undefined) { // val type unknown detect start
+				isNumeric = true;
+				valType = 'detecting';
+				val = s[p];
+				if (isDebug) log('VAL DETECT STARTING:', val);
+
+			} else if (pu.isNumeric(s[p]) && (isArr||isObj) && valStart && valType === 'detecting') {	// val type unknown detect progressing
+				val += s[p];
+				if (isDebug) log('VAL DETECT PROGRESSING:', val);
+
+
+			// ------------------ end detection
+
 			} else if (s[p]===',' && (isArr||isObj) && valStart && valType === 'detecting') { // val type unknown detect end
 				valEnd = true;
 				if (val==='true') { val = true; valType = 'boolean'; }
 				if (val==='false') { val = false; valType = 'boolean'; }
 				if (val==='null') { val = null; valType = 'null'; }
 				if (val==='undefined') { val = undefined; valType = 'undefined'; }
+				if (isNumeric) { val = +val; valType = 'number'; }
 				log('VAL DETECT END: [', valType,']',val);
 				if (isArr) o.push(val);
 				if (isObj) o[key] = val;
@@ -156,6 +177,7 @@ var parseJSON = function(json) {
 				if (val==='false') { val = false; valType = 'boolean'; }
 				if (val==='null') { val = null; valType = 'null'; }
 				if (val==='undefined') { val = undefined; valType = 'undefined'; }
+				if (isNumeric) { val = +val; valType = 'number'; }
 				if (isDebug) log('VAL DETECT END: [', valType,']',val);
 				if (isArr) o.push(val);
 				if (isObj) o[key] = val;

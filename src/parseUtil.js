@@ -20,6 +20,20 @@ pu.isAlpha = function(ch) {
 }
 
 // ******************************************************************
+pu.isNumber = function(ch) {
+	var thisFunc = 'isNumber()';
+	if (isLogging) log(thisFile, thisFunc);
+	return pu.contains('0123456789',ch.toLowerCase());
+}
+
+// ******************************************************************
+pu.isNumeric = function(ch) {
+	var thisFunc = 'isNumeric()';
+	if (isLogging) log(thisFile, thisFunc);
+	return pu.contains('+-.0123456789',ch.toLowerCase());
+}
+
+// ******************************************************************
 pu.reduce = function(collection, iterator, accumulator) {
 	var thisFunc = 'reduce()';
 	if (isLogging) log(thisFile, thisFunc);
