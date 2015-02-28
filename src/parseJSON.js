@@ -98,9 +98,19 @@ var parseJSON = function(json) {
 
 			// ------------------------------------------------------------------ OBJECT HANDLE RECURSION
 			} else if (s[p]==='{' && (isArr||isObj)){ // object start
-				valEnd = true;
-				if (isArr) o.push(parseJSON(s, p));
-				if (isObj) o[key] = parseJSON(s, p);
+				if (s[p+1]==='}') { // handle val === '{}' , empty object
+					if (valType===undefined) {
+						valEnd = true;
+						if (isArr) o.push({});
+						if (isObj) o[key] = {};
+						p++;
+					}
+				} else { // handle val = {...} , recursion
+					valEnd = true;
+					if (isArr) o.push(parseJSON(s, p));
+					if (isObj) o[key] = parseJSON(s, p);
+
+				}			
 
 			// ------------------------------------------------------------------ ARRAY HANDLING
 			} else if (s[p]===']' && isArr && valType!=='detecting') { // array end
