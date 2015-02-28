@@ -13,6 +13,13 @@ pu.template = function(arg1) {
 }
 
 // ******************************************************************
+pu.isAlpha = function(ch) {
+	var thisFunc = 'isAlpha()';
+	if (isLogging) log(thisFile, thisFunc);
+	return pu.contains('abcdefghijklmnopqrstuvwxyz',ch.toLowerCase());
+}
+
+// ******************************************************************
 pu.reduce = function(collection, iterator, accumulator) {
 	var thisFunc = 'reduce()';
 	if (isLogging) log(thisFile, thisFunc);
