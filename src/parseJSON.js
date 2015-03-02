@@ -53,19 +53,35 @@ var o = undefined; // parent object
 		var thisFunc = 'getArray()';
 		dbg(thisFile, thisFunc, arguments);
 
+		var checkForMore = function(){
+			p = pu.getNextNonWhiteSpace(s,p);
+			if (s[p]!==',' && s[p]!==']') dbg('ERROR: array missing right backet "]"', s,s[p],p);
+			if (s[p]===']') p--;
+		}
+
 		if (s[p]==='[') var ret = [];
 
-		p = pu.getNextNonWhiteSpace(s,p);
-		if (s[p]===']') return [[],p];
+		while (true) {
+			p = pu.getNextNonWhiteSpace(s,p);
+			DEBUG_s += s[p];
+			dbg('s',DEBUG_s);
 
-/*
-		if (s[p]===']') {
-			var eachItem = checkChar(s,p);
-			return [eachItem[0],];
-		} else {
+			if (s[p]===']') {
+				return [ret,p];
 
+			} else if (s[p]==='"') { // start string
+				var val = getString(s,p);
+				p = val[1];
+				dbg('val',val);
+				ret.push(val[0]);
+				checkForMore();
+				//return [ret, p];
+
+			} else {
+				if (p > s.length) break;
+			}
 		}
-*/
+
 	}
 
 	// ********************************************************************
@@ -73,46 +89,54 @@ var o = undefined; // parent object
 		var thisFunc = 'getObject()';
 		dbg(thisFile, thisFunc, arguments);
 
+		var checkForMore = function(){
+			p = pu.getNextNonWhiteSpace(s,p);
+			if (s[p]!==',' && s[p]!=='}') dbg('ERROR: array missing right backet "]"', s,s[p],p);
+			if (s[p]==='}') p--;
+		}
+
 		if (s[p]==='{') var ret = {};
 		var isKey = true;
 
-		p = pu.getNextNonWhiteSpace(s,p);
+		while(true) {
+			p = pu.getNextNonWhiteSpace(s,p);
+				DEBUG_s += s[p];
+				dbg('s',DEBUG_s);
 
-		if (s[p]==='}') {
-			return [{},p];
+			if (s[p]==='}') {
+				return [ret,p];
 
-		} else if (s[p]==='"') { // start string
+			} else if (s[p]==='"') { // start string
 
-			if (isKey) {			// is key
-				isKey = false;
-				var key = getString(s,p);
-				p = key[1];
-				dbg('key',key);
+				if (isKey) {			// is key
+					//isKey = false;
+					var key = getString(s,p);
+					p = key[1];
+					dbg('key',key);
 
-				p = pu.getNextNonWhiteSpace(s,p);
-				if (s[p]===':') {
 					p = pu.getNextNonWhiteSpace(s,p);
-					if (s[p]==='"'){
-						var val = getString(s,p);
-						p = val[1];
-						dbg('val',val);
+					if (s[p]===':') {
+						p = pu.getNextNonWhiteSpace(s,p);
+						if (s[p]==='"'){
+							var val = getString(s,p);
+							p = val[1];
+							dbg('val',val);
+						} else {
+							dbg('ERROR: unknown value type on Key/Value Pair', s,s[p],p);
+						}
+
 					} else {
-						dbg('ERROR: unknown value type on Key/Value Pair', s,s[p],p);
+						dbg('ERROR: colon not found on Key/Value Pair', s,s[p],p);
 					}
 
-				} else {
-					dbg('ERROR: colon not found on Key/Value Pair', s,s[p],p);
+					ret[key[0]] = val[0];
+					checkForMore();
+					//return [ret,p];
 				}
 
-				// temporary, TODO: handle multiple kv pairs.
-				ret[key[0]] = val[0];
-				return [ret,p];
+			} else {
+				if (p > s.length) break;
 			}
-
-
-
-		} else {
-
 		}
 
 	}
