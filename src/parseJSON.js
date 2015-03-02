@@ -69,8 +69,15 @@ var o = undefined; // parent object
 			if (s[p]===']') {
 				return [ret,p];
 
-			} else if (s[p]==='{') { // start string
+			} else if (s[p]==='{') {
 				var val = getObject(s,p);
+				p = val[1];
+				dbg('val',val);
+				ret.push(val[0]);
+				checkForMore();
+
+			} else if (s[p]==='[') {
+				var val = getArray(s,p);
 				p = val[1];
 				dbg('val',val);
 				ret.push(val[0]);
