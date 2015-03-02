@@ -84,6 +84,13 @@ var o = undefined; // parent object
 				ret.push(val[0]);
 				checkForMore();
 
+			} else if (pu.isNumeric(s[p])) { // start numeric word
+				var val = getNumeric(s,p);
+				p = val[1];
+				dbg('val',val);
+				ret.push(val[0]);
+				checkForMore();
+
 			} else {
 				if (p > s.length) break;
 			}
@@ -208,6 +215,38 @@ var o = undefined; // parent object
 					} else {
 						dbg('ERROR: Unknown Alpha word', str, s,s[p],p);
 					}
+					p--;
+					return [val,p];
+				}
+				//p = pu.getNextNonWhiteSpace(s,p);
+
+	//		} else if (s[p]==='\\\"') {
+
+			} else {
+				str += s[p];
+				if (p > s.length) break;
+			}
+			p++;
+
+		}
+
+	}
+
+	// ********************************************************************
+	var getNumeric = function(s,p){
+		var thisFunc = 'getNumeric()';
+		dbg(thisFile, thisFunc, arguments);
+
+		var isComplete = false;
+		var str = '';
+
+		while(true){
+
+			if (pu.isWhiteSpace(s[p]) || s[p]===',' || s[p]===']' || s[p]==='}'){ // broke consecutive letters, word is complete
+				if (!isComplete){
+					isComplete = true;
+					dbg('NUMERIC str:',str);
+					var val = +str;
 					p--;
 					return [val,p];
 				}
