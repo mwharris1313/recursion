@@ -77,6 +77,13 @@ var o = undefined; // parent object
 				checkForMore();
 				//return [ret, p];
 
+			} else if (pu.isAlpha(s[p])) { // start string
+				var val = getAlpha(s,p);
+				p = val[1];
+				dbg('val',val);
+				ret.push(val[0]);
+				checkForMore();
+
 			} else {
 				if (p > s.length) break;
 			}
@@ -163,11 +170,54 @@ var o = undefined; // parent object
 
 			} else {
 				str += s[p];
+				if (p > s.length) break;
 			}
 		}
 
 	}
 
+	// ********************************************************************
+	var getAlpha = function(s,p){
+		var thisFunc = 'getAlpha()';
+		dbg(thisFile, thisFunc, arguments);
+
+		var isComplete = false;
+		var str = '';
+
+		while(true){
+
+			if (pu.isWhiteSpace(s[p]) || s[p]===',' || s[p]===']' || s[p]==='}'){ // broke consecutive letters, word is complete
+				if (!isComplete){
+					isComplete = true;
+					dbg('ALPHA str:',str);
+					var val;
+					if (str==='null'){
+						val = null;
+					} else if (str==='false') {
+						val = false;
+					} else if (str==='true') {
+						val = true;
+					} else if (str==='undefined') {
+						val = undefined;
+					} else {
+						dbg('ERROR: Unknown Alpha word', str, s,s[p],p);
+					}
+					p--;
+					return [val,p];
+				}
+				//p = pu.getNextNonWhiteSpace(s,p);
+
+	//		} else if (s[p]==='\\\"') {
+
+			} else {
+				str += s[p];
+				if (p > s.length) break;
+			}
+			p++;
+
+		}
+
+	}
 
 // ##########################################################################################
 if (arguments[1] === undefined) { // first run
