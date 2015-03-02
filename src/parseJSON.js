@@ -23,23 +23,17 @@ var o = undefined; // parent object
 		var thisFunc = 'checkChar()';
 		dbg(thisFile, thisFunc, arguments);
 	
-		p = pu.getNextNonWhiteSpace(s,p)
+		p = pu.getNextNonWhiteSpace(s,p);
 		DEBUG_s += s[p];
 		dbg('s',DEBUG_s);
 
-		if (s[p]==='"') {
-			return ['" TODO',s.length];
-
-		} else if (s[p]==='[') {
+		if (s[p]==='[') {
 			var temp = getArray(s,p);
 			return [temp[0],temp[1],temp[3]];
 
 		} else if (s[p]==='{') {
 			var temp = getObject(s,p);
 			return [temp[0],temp[1],temp[3]];
-
-		} else if (s[p]===undefined) {
-			return [null,null,'parseComplete'];
 		}
 
 	}
@@ -52,7 +46,7 @@ var o = undefined; // parent object
 		var checkForMore = function(){
 
 			p = pu.getNextNonWhiteSpace(s,p);
-			if (s[p]!==',' && s[p]!==']') throw  new SyntaxError('Uncaught SyntaxError: Unexpected end of input');//throw new Error('ERROR: array missing right bracket');//dbg('ERROR: array missing right backet "]"', s,s[p],p);
+			if (s[p]!==',' && s[p]!==']') throw  new SyntaxError('Uncaught SyntaxError: Unexpected end of input');
 			if (s[p]===']') p--;
 
 		}
@@ -81,21 +75,21 @@ var o = undefined; // parent object
 				ret.push(val[0]);
 				checkForMore();
 
-			} else if (s[p]==='"') { // start string
+			} else if (s[p]==='"') {			// start string
 				var val = getString(s,p);
 				p = val[1];
 				dbg('val',val);
 				ret.push(val[0]);
 				checkForMore();
 
-			} else if (pu.isAlpha(s[p])) { // start alpha word
+			} else if (pu.isAlpha(s[p])) {		// start alpha word
 				var val = getAlpha(s,p);
 				p = val[1];
 				dbg('val',val);
 				ret.push(val[0]);
 				checkForMore();
 
-			} else if (pu.isNumeric(s[p])) { // start numeric word
+			} else if (pu.isNumeric(s[p])) {	// start numeric word
 				var val = getNumeric(s,p);
 				p = val[1];
 				dbg('val',val);
@@ -133,9 +127,9 @@ var o = undefined; // parent object
 			if (s[p]==='}') {
 				return [ret,p];
 
-			} else if (s[p]==='"') { // start string
+			} else if (s[p]==='"') {			// start string
 
-				if (isKey) {			// is key
+				if (isKey) {					// is key
 					var key = getString(s,p);
 					p = key[1];
 					dbg('key',key);
@@ -164,7 +158,6 @@ var o = undefined; // parent object
 							var val = getObject(s,p);
 							p = val[1];
 							dbg('val',val);
-							//return [temp[0],temp[1],temp[3]];
 
 						} else if (s[p]==='[') {			// start array
 							var val = getArray(s,p);
@@ -222,7 +215,7 @@ var o = undefined; // parent object
 			} else {
 
 				str += s[p];
-				if (p > s.length) throw  new SyntaxError('Uncaught SyntaxError: Unexpected end of input');//throw new Error('ERROR: String missing closing doubleqoutes');
+				if (p > s.length) throw new SyntaxError('Uncaught SyntaxError: Unexpected end of input');
 
 			}
 		}
@@ -239,7 +232,8 @@ var o = undefined; // parent object
 
 		while(true){
 
-			if (pu.isWhiteSpace(s[p]) || s[p]===',' || s[p]===']' || s[p]==='}'){ // broke consecutive letters, word is complete
+			// broke consecutive letters, word is complete
+			if (pu.isWhiteSpace(s[p]) || s[p]===',' || s[p]===']' || s[p]==='}') {
 				if (!isComplete){
 					isComplete = true;
 					dbg('ALPHA str:',str);
@@ -279,7 +273,8 @@ var o = undefined; // parent object
 
 		while(true){
 
-			if (pu.isWhiteSpace(s[p]) || s[p]===',' || s[p]===']' || s[p]==='}'){ // broke consecutive letters, word is complete
+			// broke consecutive letters, word is complete
+			if (pu.isWhiteSpace(s[p]) || s[p]===',' || s[p]===']' || s[p]==='}') {
 				if (!isComplete){
 					isComplete = true;
 					dbg('NUMERIC str:',str);
@@ -299,7 +294,8 @@ var o = undefined; // parent object
 	}
 // ##########################################################################################
 if (arguments[1] === undefined) { // first run
-	// parseJSON return a 2-part array: arr[0] the "return object" , arr[1] last known position in string
+	// parseJSON return a 2-part array:
+	// arr[0] the "return object" , arr[1] last known position in string
 
 	var retFinal = parseJSON(json, -1);
 	log("RETFINAL: ", retFinal);
