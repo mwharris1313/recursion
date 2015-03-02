@@ -200,7 +200,18 @@ var o = undefined; // parent object
 		while(true){
 
 			p++;
-			if (s[p]==='"'){
+			if (s[p]==='\\') {
+				p++;
+				var temp = '';
+				if (s[p]==='\\'){
+					temp = '\\';
+				} else if (s[p]==='"') {
+					temp = '"';
+				} else {
+					temp = s[p];
+				}
+				str += temp;
+			} else if (s[p]==='"'){
 				if (!isComplete){
 					isComplete = true;
 					return [str,p];
@@ -298,6 +309,7 @@ if (arguments[1] === undefined) { // first run
 
 	var retFinal = parseJSON(json, -1);
 	log("RETFINAL: ", retFinal);
+
 	return retFinal;
 
 } else {
