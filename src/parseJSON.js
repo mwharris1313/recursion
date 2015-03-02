@@ -131,6 +131,8 @@ var o = undefined; // parent object
 					p = pu.getNextNonWhiteSpace(s,p);
 					if (s[p]===':') {
 						p = pu.getNextNonWhiteSpace(s,p);
+
+						//================================= handle value of kv pair
 						if (s[p]==='"'){
 							var val = getString(s,p);
 							p = val[1];
@@ -140,6 +142,18 @@ var o = undefined; // parent object
 							var val = getAlpha(s,p);
 							p = val[1];
 							dbg('val',val);
+
+						} else if (s[p]==='{') { // start string
+							var val = getObject(s,p);
+							p = val[1];
+							dbg('val',val);
+							//return [temp[0],temp[1],temp[3]];
+
+						} else if (s[p]==='[') { // start string
+							var val = getArray(s,p);
+							p = val[1];
+							dbg('val',val);
+							//return [temp[0],temp[1],temp[3]];
 
 						} else {
 							dbg('ERROR: unknown value type on Key/Value Pair', s,s[p],p);
