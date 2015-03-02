@@ -157,6 +157,11 @@ var o = undefined; // parent object
 							p = val[1];
 							dbg('val',val);
 
+						} else if (pu.isNumeric(s[p])) { // start numeric word
+							var val = getNumeric(s,p);
+							p = val[1];
+							dbg('val',val);
+
 						} else if (s[p]==='{') { // start string
 							var val = getObject(s,p);
 							p = val[1];
