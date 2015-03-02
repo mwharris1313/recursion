@@ -1,222 +1,164 @@
+var thisFile = 'parseJSON.js';
 var pu; // lib/parseUtil.js
 // this is what you would do if you were one to do things the easy way:
 // var parseJSON = JSON.parse;
 // but you're not, so you'll write it from scratch:
 var isDebug = true;
+var DEBUG_s = '';
+var dbg = function(){
+ 	if (isDebug) {
+ 		log('DEBUG',arguments);
+ 	}
+ }
 
+// ==========================================================================================
 var parseJSON = function(json) {
+var s = arguments[0]; // json string
+var p = arguments[1]; // current position in string
+var o = undefined; // parent object
+// ##########################################################################################
 
-	if (arguments[1] === undefined) { // first run
-		return parseJSON(json, 0);
+	// ********************************************************************
+	var checkChar = function(s,p){
+		var thisFunc = 'checkChar()';
+		dbg(thisFile, thisFunc, arguments);
 
-	} else {
-		var s = arguments[0]; // json string
-		var p = arguments[1]; // current position in string
-		var o = undefined; // parent object
+		//while (p < s.length-1) {
+	
+			p = pu.getNextNonWhiteSpace(s,p)
+			DEBUG_s += s[p];
+			dbg('s',DEBUG_s);
 
-		var itemStarted = false;
-		var itemEnded = false;
-		var itemType = undefined;
+			if (s[p]==='"') {
+				return ['" TODO',s.length];
 
-		var isArr = false;
-		var isObj = false;
-		var isNumeric = false;
+			} else if (s[p]==='[') {
+				var temp = getArray(s,p);
+				return [temp[0],temp[1],temp[3]];
 
-		var keyStart = false;
-		var keyEnd = false;
-		var key = undefined;
+			} else if (s[p]==='{') {
+				var temp = getObject(s,p);
+				return [temp[0],temp[1],temp[3]];
 
-		var valStart = false;
-		var valEnd = false;
-		var val = undefined;
-		var valType = undefined;
-		var isNumeric = false;
-
-		var commaReset = function(){
-			// ------------------ comma reset for key/value
-			if (isObj) {
-				keyStart = false;
-				keyEnd = false;
-				key = undefined;				
+			} else if (s[p]===undefined) {
+				return [null,null,'parseComplete'];
 			}
 
-			// reset val for both arrays and objects
-			valStart = true;
-			valEnd = false;
-			val = undefined;
-			valType = undefined;
-			isNumeric = false;
+		//}
+
+	}
+
+	// ********************************************************************
+	var getArray = function(s,p){
+		var thisFunc = 'getArray()';
+		dbg(thisFile, thisFunc, arguments);
+
+		if (s[p]==='[') var ret = [];
+
+		p = pu.getNextNonWhiteSpace(s,p);
+		if (s[p]===']') return [[],p];
+
+/*
+		if (s[p]===']') {
+			var eachItem = checkChar(s,p);
+			return [eachItem[0],];
+		} else {
+
 		}
+*/
+	}
 
-		var logVars = function(){
-			if (isDebug) {
-				log('################################ START LOG');
-				log('var s = ',s);
-				log('var p = ',p);
-				log('var o = ',o);
-				log('var s[p] = ',s[p]);
+	// ********************************************************************
+	var getObject = function(s,p){
+		var thisFunc = 'getObject()';
+		dbg(thisFile, thisFunc, arguments);
 
-				log('var itemStarted = ',itemStarted);
-				log('var itemEnded = ',itemEnded);
-				log('var itemType = ',itemType);
+		if (s[p]==='{') var ret = {};
+		var isKey = true;
 
-				log('var isArr = ',isArr);
-				log('var isObj = ',isObj);
+		p = pu.getNextNonWhiteSpace(s,p);
 
-				log('var keyStart = ',keyStart);
-				log('var keyEnd = ',keyEnd);
-				log('var key = ',key);
+		if (s[p]==='}') {
+			return [{},p];
 
-				log('var valStart = ',valStart);
-				log('var valEnd = ',valEnd);
-				log('var val = ',val);
-				log('var valType = ',valType);
-				log('var isNumeric = ',isNumeric);
-				log('################################ END LOG');
-			}
-		}
+		} else if (s[p]==='"') { // start string
 
+			if (isKey) {			// is key
+				isKey = false;
+				var key = getString(s,p);
+				p = key[1];
+				dbg('key',key);
 
-		for (; p<s.length ;p++) { // run through the json string left to right checking for 'trigger' characters
-
-			// ------------------------------------------------------------------ ARRAY INIT
-			if (s[p]==='[' && !isArr && !isObj){ // array start
-				o = [];
-				valStart = true;
-				isArr = true;
-
-			// ------------------------------------------------------------------ ARRAY HANDLE RECURSION
-			} else if (s[p]==='[' && (isArr||isObj)){ // object start
-				valEnd = true;
-				if (isArr) o.push(parseJSON(s, p));
-				if (isObj) o[key] = parseJSON(s, p);
-
-			// ------------------------------------------------------------------ OBJECT INIT
-			} else if (s[p]==='{' && !isArr && !isObj){ // object start
-				o = {};
-				isObj = true;
-
-			// ------------------------------------------------------------------ OBJECT HANDLE RECURSION
-			} else if (s[p]==='{' && (isArr||isObj)){ // object start
-				if (s[p+1]==='}') { // handle val === '{}' , empty object
-					if (valType===undefined) {
-						valEnd = true;
-						if (isArr) o.push({});
-						if (isObj) o[key] = {};
-						p++;
+				p = pu.getNextNonWhiteSpace(s,p);
+				if (s[p]===':') {
+					p = pu.getNextNonWhiteSpace(s,p);
+					if (s[p]==='"'){
+						var val = getString(s,p);
+						p = val[1];
+						dbg('val',val);
+					} else {
+						dbg('ERROR: unknown value type on Key/Value Pair', s,s[p],p);
 					}
-				} else { // handle val = {...} , recursion
-					valEnd = true;
-					if (isArr) o.push(parseJSON(s, p));
-					if (isObj) o[key] = parseJSON(s, p);
 
-				}			
+				} else {
+					dbg('ERROR: colon not found on Key/Value Pair', s,s[p],p);
+				}
 
-			// ------------------------------------------------------------------ ARRAY HANDLING
-			} else if (s[p]===']' && isArr && valType!=='detecting') { // array end
-				return o;
-
-//			} else if (s[p] === '"' && itemStarted && itemType === 'array') { // array end
-//				return o;
-
-			// ------------------------------------------------------------------ OBJECT HANDLING
-			} else if (s[p]==='}' && isObj && valType!=='detecting') { // object end
-				return o;
-
-			} else if (s[p]==='"' && isObj && !keyStart) { // object key start
-				keyStart = true;
-				key = '';
-			} else if (s[p]!=='"' && isObj && keyStart && !keyEnd) { // object key progressing
-				key += s[p];
-				if (isDebug) log('KEY PROGRESSING:', val);
-
-			} else if (s[p]==='"' && isObj && !keyEnd) { // object key end
-				keyEnd = true;
-				if (isDebug) log('KEY:',key);
-
-			} else if (s[p]===':' && isObj && keyEnd && !valStart) { // object val start
-				valStart = true;
-
-			// ------------------------------------------------------------------ SHARED HANDLING
+				// temporary, TODO: handle multiple kv pairs.
+				ret[key[0]] = val[0];
+				return [ret,p];
+			}
 
 
-			// ------------------ handle valType string
-			} else if (s[p]==='"' && (isArr||isObj) && valStart && valType === undefined) { // val type string
-				valType = 'string';
-				val = '';
 
-			} else if (s[p]!=='"' && (isArr||isObj) && !valEnd && valType === 'string') { // val type string progressing
-				val += s[p];
-				if (isDebug) log('VAL STRING PROGRESSING:', val);
+		} else {
 
-			} else if (s[p]==='"' && (isArr||isObj) && !valEnd && valType === 'string') { // val type string end
-				valEnd = true;
-				if (isDebug) log('VAL STRING:', val);
-				if (isArr) o.push(val);
-				if (isObj) o[key] = val;
+		}
 
-			// ------------------ handle/detect unknown val type
+	}
 
-			// -------- isAlpha chars
-			} else if (pu.isAlpha(s[p]) && (isArr||isObj) && valStart && valType === undefined) { // val type unknown detect start
-				valType = 'detecting';
-				val = s[p];
-				if (isDebug) log('VAL DETECT STARTING:', val);
+	// ********************************************************************
+	var getString = function(s,p){
+		var thisFunc = 'getString()';
+		dbg(thisFile, thisFunc, arguments);
 
-			} else if (pu.isAlpha(s[p]) && (isArr||isObj) && valStart && valType === 'detecting') {	// val type unknown detect progressing
-				val += s[p];
-				if (isDebug) log('VAL DETECT PROGRESSING:', val);
+		var isComplete = false;
+		var str = '';
 
+		while(true){
 
-			// -------- isNumeric chars
-			} else if (pu.isNumeric(s[p]) && (isArr||isObj) && valStart && valType === undefined) { // val type unknown detect start
-				isNumeric = true;
-				valType = 'detecting';
-				val = s[p];
-				if (isDebug) log('VAL DETECT STARTING:', val);
+			p++;
+			if (s[p]==='"'){
+				if (!isComplete){
+					isComplete = true;
+					return [str,p];
+				}
+				//p = pu.getNextNonWhiteSpace(s,p);
 
-			} else if (pu.isNumeric(s[p]) && (isArr||isObj) && valStart && valType === 'detecting') {	// val type unknown detect progressing
-				val += s[p];
-				if (isDebug) log('VAL DETECT PROGRESSING:', val);
-
-
-			// ------------------ end detection
-
-			} else if (s[p]===',' && (isArr||isObj) && valStart && valType === 'detecting') { // val type unknown detect end
-				valEnd = true;
-				if (val==='true') { val = true; valType = 'boolean'; }
-				if (val==='false') { val = false; valType = 'boolean'; }
-				if (val==='null') { val = null; valType = 'null'; }
-				if (val==='undefined') { val = undefined; valType = 'undefined'; }
-				if (isNumeric) { val = +val; valType = 'number'; }
-				log('VAL DETECT END: [', valType,']',val);
-				if (isArr) o.push(val);
-				if (isObj) o[key] = val;
-				commaReset();
-
-			} else if ( (s[p]===']' || s[p]==='}') && (isArr||isObj) && valStart && valType === 'detecting') { // val type unknown detect end
-				valEnd = true;
-				if (val==='true') { val = true; valType = 'boolean'; }
-				if (val==='false') { val = false; valType = 'boolean'; }
-				if (val==='null') { val = null; valType = 'null'; }
-				if (val==='undefined') { val = undefined; valType = 'undefined'; }
-				if (isNumeric) { val = +val; valType = 'number'; }
-				if (isDebug) log('VAL DETECT END: [', valType,']',val);
-				if (isArr) o.push(val);
-				if (isObj) o[key] = val;
-				return o;
-
-
-			} else if (s[p]===',' && (isArr||isObj) && valEnd){
-				commaReset();
-
-			// ------------------------------------------------------------------ NON HANDLED CHARACTERS
-			// whitespace and other non "trigger" characters...
+	//		} else if (s[p]==='\\\"') {
 
 			} else {
+				str += s[p];
 			}
 		}
 
 	}
 
-};
+
+// ##########################################################################################
+if (arguments[1] === undefined) { // first run
+	// parseJSON return a 2-part array: arr[0] the "return object" , arr[1] last known position in string
+
+	var retFinal = parseJSON(json, -1);
+	log("RETFINAL: ", retFinal);
+	return retFinal;
+
+} else {
+
+	var ret = checkChar(s,p);
+	return ret[0];
+}
+// ##########################################################################################
+}
+// ==========================================================================================
+
