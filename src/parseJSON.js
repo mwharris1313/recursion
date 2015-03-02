@@ -77,7 +77,7 @@ var o = undefined; // parent object
 				checkForMore();
 				//return [ret, p];
 
-			} else if (pu.isAlpha(s[p])) { // start string
+			} else if (pu.isAlpha(s[p])) { // start alpha word
 				var val = getAlpha(s,p);
 				p = val[1];
 				dbg('val',val);
@@ -128,6 +128,12 @@ var o = undefined; // parent object
 							var val = getString(s,p);
 							p = val[1];
 							dbg('val',val);
+
+						} else if (pu.isAlpha(s[p])) { // start alpha word
+							var val = getAlpha(s,p);
+							p = val[1];
+							dbg('val',val);
+
 						} else {
 							dbg('ERROR: unknown value type on Key/Value Pair', s,s[p],p);
 						}
