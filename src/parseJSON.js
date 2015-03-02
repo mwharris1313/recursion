@@ -3,7 +3,7 @@ var pu; // lib/parseUtil.js
 // this is what you would do if you were one to do things the easy way:
 // var parseJSON = JSON.parse;
 // but you're not, so you'll write it from scratch:
-var isDebug = true;
+var isDebug = false;
 var DEBUG_s = '';
 var dbg = function(){
  	if (isDebug) {
@@ -22,29 +22,25 @@ var o = undefined; // parent object
 	var checkChar = function(s,p){
 		var thisFunc = 'checkChar()';
 		dbg(thisFile, thisFunc, arguments);
-
-		//while (p < s.length-1) {
 	
-			p = pu.getNextNonWhiteSpace(s,p)
-			DEBUG_s += s[p];
-			dbg('s',DEBUG_s);
+		p = pu.getNextNonWhiteSpace(s,p)
+		DEBUG_s += s[p];
+		dbg('s',DEBUG_s);
 
-			if (s[p]==='"') {
-				return ['" TODO',s.length];
+		if (s[p]==='"') {
+			return ['" TODO',s.length];
 
-			} else if (s[p]==='[') {
-				var temp = getArray(s,p);
-				return [temp[0],temp[1],temp[3]];
+		} else if (s[p]==='[') {
+			var temp = getArray(s,p);
+			return [temp[0],temp[1],temp[3]];
 
-			} else if (s[p]==='{') {
-				var temp = getObject(s,p);
-				return [temp[0],temp[1],temp[3]];
+		} else if (s[p]==='{') {
+			var temp = getObject(s,p);
+			return [temp[0],temp[1],temp[3]];
 
-			} else if (s[p]===undefined) {
-				return [null,null,'parseComplete'];
-			}
-
-		//}
+		} else if (s[p]===undefined) {
+			return [null,null,'parseComplete'];
+		}
 
 	}
 
@@ -54,9 +50,11 @@ var o = undefined; // parent object
 		dbg(thisFile, thisFunc, arguments);
 
 		var checkForMore = function(){
+
 			p = pu.getNextNonWhiteSpace(s,p);
-			if (s[p]!==',' && s[p]!==']') dbg('ERROR: array missing right backet "]"', s,s[p],p);
+			if (s[p]!==',' && s[p]!==']') throw  new SyntaxError('Uncaught SyntaxError: Unexpected end of input');//throw new Error('ERROR: array missing right bracket');//dbg('ERROR: array missing right backet "]"', s,s[p],p);
 			if (s[p]===']') p--;
+
 		}
 
 		if (s[p]==='[') var ret = [];
@@ -89,7 +87,6 @@ var o = undefined; // parent object
 				dbg('val',val);
 				ret.push(val[0]);
 				checkForMore();
-				//return [ret, p];
 
 			} else if (pu.isAlpha(s[p])) { // start alpha word
 				var val = getAlpha(s,p);
@@ -118,9 +115,11 @@ var o = undefined; // parent object
 		dbg(thisFile, thisFunc, arguments);
 
 		var checkForMore = function(){
+
 			p = pu.getNextNonWhiteSpace(s,p);
-			if (s[p]!==',' && s[p]!=='}') dbg('ERROR: array missing right backet "]"', s,s[p],p);
+			if (s[p]!==',' && s[p]!=='}') dbg('ERROR: array missing right brace "}"', s,s[p],p);
 			if (s[p]==='}') p--;
+
 		}
 
 		if (s[p]==='{') var ret = {};
@@ -137,7 +136,6 @@ var o = undefined; // parent object
 			} else if (s[p]==='"') { // start string
 
 				if (isKey) {			// is key
-					//isKey = false;
 					var key = getString(s,p);
 					p = key[1];
 					dbg('key',key);
@@ -147,32 +145,31 @@ var o = undefined; // parent object
 						p = pu.getNextNonWhiteSpace(s,p);
 
 						//================================= handle value of kv pair
-						if (s[p]==='"'){
+						if (s[p]==='"'){					// start string
 							var val = getString(s,p);
 							p = val[1];
 							dbg('val',val);
 
-						} else if (pu.isAlpha(s[p])) { // start alpha word
+						} else if (pu.isAlpha(s[p])) {		// start alpha word
 							var val = getAlpha(s,p);
 							p = val[1];
 							dbg('val',val);
 
-						} else if (pu.isNumeric(s[p])) { // start numeric word
+						} else if (pu.isNumeric(s[p])) {	// start numeric word
 							var val = getNumeric(s,p);
 							p = val[1];
 							dbg('val',val);
 
-						} else if (s[p]==='{') { // start string
+						} else if (s[p]==='{') {			// start object
 							var val = getObject(s,p);
 							p = val[1];
 							dbg('val',val);
 							//return [temp[0],temp[1],temp[3]];
 
-						} else if (s[p]==='[') { // start string
+						} else if (s[p]==='[') {			// start array
 							var val = getArray(s,p);
 							p = val[1];
 							dbg('val',val);
-							//return [temp[0],temp[1],temp[3]];
 
 						} else {
 							dbg('ERROR: unknown value type on Key/Value Pair', s,s[p],p);
@@ -184,7 +181,7 @@ var o = undefined; // parent object
 
 					ret[key[0]] = val[0];
 					checkForMore();
-					//return [ret,p];
+
 				}
 
 			} else {
@@ -221,13 +218,12 @@ var o = undefined; // parent object
 					isComplete = true;
 					return [str,p];
 				}
-				//p = pu.getNextNonWhiteSpace(s,p);
-
-	//		} else if (s[p]==='\\\"') {
 
 			} else {
+
 				str += s[p];
-				if (p > s.length) break;
+				if (p > s.length) throw  new SyntaxError('Uncaught SyntaxError: Unexpected end of input');//throw new Error('ERROR: String missing closing doubleqoutes');
+
 			}
 		}
 
@@ -262,9 +258,6 @@ var o = undefined; // parent object
 					p--;
 					return [val,p];
 				}
-				//p = pu.getNextNonWhiteSpace(s,p);
-
-	//		} else if (s[p]==='\\\"') {
 
 			} else {
 				str += s[p];
@@ -294,9 +287,6 @@ var o = undefined; // parent object
 					p--;
 					return [val,p];
 				}
-				//p = pu.getNextNonWhiteSpace(s,p);
-
-	//		} else if (s[p]==='\\\"') {
 
 			} else {
 				str += s[p];
@@ -307,18 +297,15 @@ var o = undefined; // parent object
 		}
 
 	}
-
 // ##########################################################################################
 if (arguments[1] === undefined) { // first run
 	// parseJSON return a 2-part array: arr[0] the "return object" , arr[1] last known position in string
 
 	var retFinal = parseJSON(json, -1);
 	log("RETFINAL: ", retFinal);
-
 	return retFinal;
 
 } else {
-
 	var ret = checkChar(s,p);
 	return ret[0];
 }
